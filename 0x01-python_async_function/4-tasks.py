@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
-
-
+""" Tasks """
+import asyncio
+import random
 from typing import List
 
 
-''' Take the code from wait_n and alter it into a new function task_wait_n.
-    The code is nearly identical to wait_n except task_wait_random is being
-    called.
-'''
+task_wait_random = __import__('3-tasks').wait_random
 
 
-async def task_wait_n(n: int, max_delay: int) -> List[float]:
-    '''Runs an async function for n times and adds the results into a list'''
-    modified_random = __import__('3-tasks').task_wait_random
+async def task_wait_n(n: int = 0, max_delay: int = 10) -> List[float]:
+    """
+        Args:
+            max_delay: max wait
+            n: spawn function
 
-    delay_list = []
-    i = 0
+        Return:
+            multiples tasks
+    """
+    delays: List[float] = []
+    tasks: List[asyncio.Task] = []
 
-    while i < n:
-        delay_list.append(await modified_random(max_delay))
-        i += 1
+    for _ in range(n):
+        tasks.append(task_wait_random(max_delay))
 
-    return sorted(delay_list)
+    for task in asyncio.as_completed((tasks)):
+        delay = await task
+        delays.append(delay)
 
-
-if __name__ == '__main__':
-    import asyncio
-
-    print(task_wait_n.__doc__)
-    print(asyncio.run(task_wait_n(3, 4)))
+    return delays
