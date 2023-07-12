@@ -10,21 +10,18 @@
     Notice that the total runtime is roughly 10 seconds, explain it
     to yourself.
 '''
-
-
 import asyncio
 import time
 
+async_comprehension = __import__('1-async_comprehension').async_comprehension
+
 
 async def measure_runtime() -> float:
-    '''Runs async comprehension in parallel and returns the total time'''
-    comp = __import__('1-async_comprehension').async_comprehension
-
+    """ Run time for four parallel comprehensions """
+    tasks = []
     start_time = time.time()
-    await asyncio.gather(comp(), comp(), comp(), comp())
-
-    return time.time() - start_time
-
-
-if __name__ == '__main__':
-    print(asyncio.run(measure_runtime()))
+    for i in range(4):
+        tasks.append(asyncio.create_task(async_comprehension()))
+    await asyncio.gather(*tasks)
+    end_time = time.time()
+    return end_time - start_time
